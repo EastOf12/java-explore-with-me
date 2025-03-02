@@ -1,21 +1,15 @@
 package ru.practicum.service;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.EventDto;
 import ru.practicum.NewEventRequest;
+import ru.practicum.ViewStats;
 import ru.practicum.mapper.EventMapper;
-import ru.practicum.model.Event;
 import ru.practicum.repository.StaticRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -33,24 +27,27 @@ public class StaticServiceImpl implements StaticService{
     }
 
     @Override
-    public List<EventDto> get(
+    public List<ViewStats> get(
             LocalDateTime start,
             LocalDateTime end,
             Boolean unique, List<String> uris) {
 
-        List<Event> events = new ArrayList<>();
-        List<EventDto> eventDtos = new ArrayList<>();
+        List<ViewStats> viewStats;
 
-        if(!unique && uris.isEmpty()) {
+        if(unique && !uris.isEmpty()) {
+            log.info("Передаем информацию по уникальным событиям с {} по {} по этим uri {}", start, end, uris);
+            viewStats = staticRepository.findUniqueAppUriCountByCreateTimeBetweenAndUris(start, end, uris);
+        } else if (!uris.isEmpty()) {
+            log.info("Передаем информацию событиям с {} по {} по этим uri {}", start, end, uris);
+            viewStats = staticRepository.findAppUriCountByCreateTimeBetweenAndUris(start, end, uris);
+        } else if (unique){
+            log.info("Передаем информацию по уникальным событиям с {} по {}", start, end);
+            viewStats = staticRepository.findUniqueAppUriCountByCreateTimeBetween(start, end);
+        } else {
             log.info("Передаем информацию по событиям с {} по {}", start, end);
-            events = staticRepository.findAllByCreateTimeBetween(start, end);
+            viewStats = staticRepository.findAppUriCountByCreateTimeBetween(start, end);
         }
 
-        for (Event event : events) {
-            eventDtos.add(EventMapper.mapToEventDto(event));
-        }
-
-        return eventDtos;
+        return viewStats;
     }
-
 }

@@ -2,8 +2,8 @@ package ru.practicum.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.EventDto;
 import ru.practicum.NewEventRequest;
+import ru.practicum.ViewStats;
 import ru.practicum.model.Event;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,16 +15,6 @@ public final class EventMapper {
                 newEventRequest.getUri(),
                 newEventRequest.getIp(),
                 newEventRequest.getTimestamp()
-        );
-    }
-
-    public static EventDto mapToEventDto(Event event) {
-        return new EventDto(
-
-                event.getApp(),
-                event.getUri(),
-
-                6L
         );
     }
 }

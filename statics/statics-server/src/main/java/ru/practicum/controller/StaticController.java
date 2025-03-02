@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.EventDto;
 import ru.practicum.NewEventRequest;
+import ru.practicum.ViewStats;
 import ru.practicum.service.StaticService;
 
 import java.time.LocalDateTime;
@@ -26,17 +26,15 @@ public class StaticController {
     } //Создать событие
 
     @GetMapping(path = "/stats")
-    public List<EventDto> get(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                              @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                              @RequestParam(defaultValue = "false") Boolean unique,
-                              @RequestParam(required = false) List<String> uris) {
+    public List<ViewStats> get(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                               @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                               @RequestParam(defaultValue = "false") Boolean unique,
+                               @RequestParam(required = false) List<String> uris) {
 
         if (uris == null || uris.isEmpty()) {
             uris = new ArrayList<>();
         }
 
         return staticService.get(start, end, unique, uris);
-    } //Получаем события
-
-
+    } //Передаем информацию по событиям
 }
