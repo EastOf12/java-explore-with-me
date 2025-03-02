@@ -20,11 +20,11 @@ public final class EventMapper {
 
     public static EventDto mapToEventDto(Event event) {
         return new EventDto(
-                event.getId(),
+
                 event.getApp(),
                 event.getUri(),
-                event.getIp(),
-                event.getCreateTime()
+
+                6L
         );
     }
 }

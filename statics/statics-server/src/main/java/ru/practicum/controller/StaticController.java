@@ -2,6 +2,7 @@ package ru.practicum.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.EventDto;
@@ -25,7 +26,8 @@ public class StaticController {
     } //Создать событие
 
     @GetMapping(path = "/stats")
-    public List<EventDto> get(@RequestParam LocalDateTime start, @RequestParam LocalDateTime end,
+    public List<EventDto> get(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                              @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                               @RequestParam(defaultValue = "false") Boolean unique,
                               @RequestParam(required = false) List<String> uris) {
 
