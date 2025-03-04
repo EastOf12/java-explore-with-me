@@ -25,9 +25,26 @@ services:
       - POSTGRES_DB=statics
 
   ewm-service:
-    # Пустышка
-    container_name: ewm-service-placeholder
+    build: statics/statics-server
+    image: ewm-service
+    container_name: ewm-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ewm-db
+
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statics
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
 
   ewm-db:
-    # Пустышка
-    container_name: ewm-db-placeholder
+    ports:
+    - "5434:5434"
+    image: postgres:16.1
+    container_name: ewm-db
+
+    environment:
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ewm-db
