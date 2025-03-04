@@ -23,3 +23,11 @@ services:
       - POSTGRES_USERNAME=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=statics
+
+  ewm-service:
+    # Пустышка
+    container_name: ewm-service-placeholder
+
+  ewm-db:
+    # Пустышка
+    container_name: ewm-db-placeholder
