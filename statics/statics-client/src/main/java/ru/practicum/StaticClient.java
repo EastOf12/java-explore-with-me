@@ -14,7 +14,7 @@ import java.util.List;
 public class StaticClient {
     private final RestTemplate restTemplate;
 
-    private final static String BASE_URL = "http://localhost:9090";
+    private static final String BASE_URL = "http://localhost:9090";
 
     public void createEvent(NewEventRequest newEventRequest) throws Exception {
         String url = BASE_URL + "/hit";
