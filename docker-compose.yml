@@ -1,5 +1,5 @@
 services:
-  ewm-service:
+  stats-server:
     build: statics/statics-server
     image: ewm-stats-server
     container_name: ewm-stats-server
