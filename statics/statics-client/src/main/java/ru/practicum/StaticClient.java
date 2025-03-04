@@ -14,10 +14,10 @@ import java.util.List;
 public class StaticClient {
     private final RestTemplate restTemplate;
 
-    private final String BASE_URL = "http://localhost:9090";
+    private final String URL = "http://localhost:9090";
 
     public void createEvent(NewEventRequest newEventRequest) throws Exception {
-        String url = BASE_URL + "/hit";
+        String url = URL + "/hit";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -33,7 +33,7 @@ public class StaticClient {
 
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, Boolean unique, List<String> uris) {
         String url = String.format("%s/stats?start=%s&end=%s&unique=%s",
-                BASE_URL, start, end, unique);
+                URL, start, end, unique);
 
         if (uris != null && !uris.isEmpty()) {
             String uriParams = String.join(",", uris);
