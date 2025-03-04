@@ -3,7 +3,6 @@ package ru.practicum.mapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.NewEventRequest;
-import ru.practicum.ViewStats;
 import ru.practicum.model.Event;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

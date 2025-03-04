@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class StaticServiceImpl implements StaticService{
+public class StaticServiceImpl implements StaticService {
     private final StaticRepository staticRepository;
 
     @Transactional
@@ -34,13 +34,13 @@ public class StaticServiceImpl implements StaticService{
 
         List<ViewStats> viewStats;
 
-        if(unique && !uris.isEmpty()) {
+        if (unique && !uris.isEmpty()) {
             log.info("Передаем информацию по уникальным событиям с {} по {} по этим uri {}", start, end, uris);
             viewStats = staticRepository.findUniqueAppUriCountByCreateTimeBetweenAndUris(start, end, uris);
         } else if (!uris.isEmpty()) {
             log.info("Передаем информацию событиям с {} по {} по этим uri {}", start, end, uris);
             viewStats = staticRepository.findAppUriCountByCreateTimeBetweenAndUris(start, end, uris);
-        } else if (unique){
+        } else if (unique) {
             log.info("Передаем информацию по уникальным событиям с {} по {}", start, end);
             viewStats = staticRepository.findUniqueAppUriCountByCreateTimeBetween(start, end);
         } else {
