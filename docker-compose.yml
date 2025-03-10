@@ -25,7 +25,7 @@ services:
       - POSTGRES_DB=statics
 
   ewm-service:
-    build: statics/statics-server
+    build: main-server
     image: ewm-service
     container_name: ewm-service
     ports:
@@ -34,13 +34,13 @@ services:
       - ewm-db
 
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statics
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
   ewm-db:
     ports:
-    - "5434:5434"
+    - "5434:5432"
     image: postgres:16.1
     container_name: ewm-db
 

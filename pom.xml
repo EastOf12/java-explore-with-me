@@ -13,6 +13,7 @@
 	<name>Explore With Me</name>
     <modules>
         <module>statics</module>
+		<module>main-server</module>
 	</modules>
 
     <groupId>ru.practicum</groupId>
