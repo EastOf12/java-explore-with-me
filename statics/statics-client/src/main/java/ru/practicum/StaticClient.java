@@ -1,6 +1,6 @@
 package ru.practicum;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -11,12 +11,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class StaticClient {
     private final RestTemplate restTemplate;
 
     @Value("${base.url}")
     private String baseUrl;
+
+    @Autowired
+    public StaticClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
 
     public void createEvent(NewEventRequest newEventRequest) throws Exception {
         String url = baseUrl + "/hit";
@@ -41,6 +46,8 @@ public class StaticClient {
             String uriParams = String.join(",", uris);
             url += "&uris=" + uriParams;
         }
+
+        System.out.println("url тут" + url);
 
         ResponseEntity<List<ViewStats>> response = restTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<List<ViewStats>>() {
