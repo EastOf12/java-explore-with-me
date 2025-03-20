@@ -322,7 +322,7 @@ public class EventServiceImpl implements EventService {
         log.info("Запрос на получение краткой информации по событиям");
 
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            throw new ValidationException("Дата начала поиска не может быть позже даты завершения");
+            throw new jakarta.validation.ValidationException("Не верный диапазон поиска");
         }
         Specification<Event> specification = Specification.where(null);
         if (text != null) {

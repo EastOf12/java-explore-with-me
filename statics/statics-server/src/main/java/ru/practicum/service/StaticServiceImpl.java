@@ -1,5 +1,6 @@
 package ru.practicum.service;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,10 @@ public class StaticServiceImpl implements StaticService {
             LocalDateTime start,
             LocalDateTime end,
             Boolean unique, List<String> uris) {
+
+        if (start != null && end != null && start.isAfter(end)) {
+            throw new ValidationException("Не верный диапазон поиска");
+        }
 
         List<ViewStats> viewStats;
 
