@@ -33,8 +33,8 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ForbiddenException("Категория " + newCategoryRequest.getName() + " уже используется");
         }
 
-        return CategoryMapper.mapToCategoryDto(categoryRepository.
-                save(CategoryMapper.mapToCategory(newCategoryRequest)));
+        return CategoryMapper.mapToCategoryDto(categoryRepository
+                .save(CategoryMapper.mapToCategory(newCategoryRequest)));
     }
 
     @Override
@@ -53,8 +53,8 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         //Обновляем название категории
-        return CategoryMapper.mapToCategoryDto(categoryRepository.
-                save(CategoryMapper.mapToCategory(id, updateCategoryRequest)));
+        return CategoryMapper.mapToCategoryDto(categoryRepository
+                .save(CategoryMapper.mapToCategory(id, updateCategoryRequest)));
     }
 
     @Override
