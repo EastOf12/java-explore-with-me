@@ -1,7 +1,9 @@
 package ru.practicum.request.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.event.model.Event;
 import ru.practicum.user.model.User;
 

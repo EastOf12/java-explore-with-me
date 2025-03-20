@@ -11,10 +11,11 @@ import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.request.NewEventRequest;
 import ru.practicum.event.request.UpdateEventUserRequest;
 import ru.practicum.event.service.EventService;
-import ru.practicum.request.request.EventRequestStatusUpdateRequest;
 import ru.practicum.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.request.dto.RequestDto;
+import ru.practicum.request.request.EventRequestStatusUpdateRequest;
 import ru.practicum.request.service.RequestService;
+
 import java.util.List;
 
 @RestController

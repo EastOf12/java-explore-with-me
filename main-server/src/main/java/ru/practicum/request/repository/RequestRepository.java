@@ -7,7 +7,6 @@ import ru.practicum.request.dto.ConfirmedRequests;
 import ru.practicum.request.model.ParticipationRequest;
 import ru.practicum.request.model.RequestStatus;
 
-
 import java.util.List;
 
 public interface RequestRepository extends JpaRepository<ParticipationRequest, Long> {
@@ -27,5 +26,5 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             "FROM ParticipationRequest AS r " +
             "WHERE r.event.id IN (:ids) AND r.status = :status " +
             "GROUP BY (r.event)")
-    List<ConfirmedRequests> findAllByEventIdInAndStatus(@Param("ids")List<Long> ids, @Param("status")RequestStatus status);
+    List<ConfirmedRequests> findAllByEventIdInAndStatus(@Param("ids") List<Long> ids, @Param("status") RequestStatus status);
 }

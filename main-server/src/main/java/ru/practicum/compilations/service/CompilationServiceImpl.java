@@ -16,8 +16,8 @@ import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exeption.NotFoundException;
-import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.request.dto.ConfirmedRequests;
+import ru.practicum.request.repository.RequestRepository;
 
 import java.util.ArrayList;
 import java.util.List;

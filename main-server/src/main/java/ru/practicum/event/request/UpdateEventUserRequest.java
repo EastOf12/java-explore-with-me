@@ -2,11 +2,11 @@ package ru.practicum.event.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.locations.LocationDto;
-import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDateTime;
 

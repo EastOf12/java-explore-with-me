@@ -20,6 +20,13 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class ErrorHandler {
 
+    private static String stackTraceToString(Throwable e) {
+        Writer buffer = new StringWriter();
+        PrintWriter pw = new PrintWriter(buffer);
+        e.printStackTrace(pw);
+        return buffer.toString();
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError badRequest(DataIntegrityViolationException e) {
@@ -80,12 +87,5 @@ public class ErrorHandler {
                 .status("INTERNAL_SERVER_ERROR")
                 .timestamp(LocalDateTime.now())
                 .build();
-    }
-
-    private static String stackTraceToString(Throwable e) {
-        Writer buffer = new StringWriter();
-        PrintWriter pw = new PrintWriter(buffer);
-        e.printStackTrace(pw);
-        return buffer.toString();
     }
 }

@@ -1,7 +1,9 @@
 package ru.practicum.locations;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
@@ -16,13 +18,13 @@ public class Location {
     private Long id;
 
     @Column(nullable = false)
-    private Float lat ;
+    private Float lat;
 
     @Column(nullable = false)
     private Float lon;
 
-    public Location(Float lat , Float lon) {
-        this.lat  = lat ;
+    public Location(Float lat, Float lon) {
+        this.lat = lat;
         this.lon = lon;
     }
 }

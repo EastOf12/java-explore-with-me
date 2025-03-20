@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
@@ -45,8 +45,8 @@ public class CategoryServiceImpl implements CategoryService{
         //Проверяем, что нет других категорий с таким названием
         List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(updateCategoryRequest.getName());
 
-        for(Category category: categories) {
-            if(!category.getId().equals(id) && category.getName().equals(updateCategoryRequest.getName())) {
+        for (Category category : categories) {
+            if (!category.getId().equals(id) && category.getName().equals(updateCategoryRequest.getName())) {
                 throw new ForbiddenException("Категория " + updateCategoryRequest.getName() +
                         " уже используется категорией с id " + category.getId());
             }

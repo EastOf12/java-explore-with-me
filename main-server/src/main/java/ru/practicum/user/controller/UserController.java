@@ -20,7 +20,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto create( @RequestBody @Valid NewUserRequest newUserRequest) {
+    public UserDto create(@RequestBody @Valid NewUserRequest newUserRequest) {
         return userService.create(newUserRequest);
     } //Создать пользователя
 

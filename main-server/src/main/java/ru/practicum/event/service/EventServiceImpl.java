@@ -34,8 +34,8 @@ import ru.practicum.exeption.ValidationException;
 import ru.practicum.locations.Location;
 import ru.practicum.locations.LocationMapper;
 import ru.practicum.locations.LocationRepository;
-import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.request.dto.ConfirmedRequests;
+import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
@@ -55,7 +55,7 @@ import static ru.practicum.request.model.RequestStatus.CONFIRMED;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class EventServiceImpl implements EventService{
+public class EventServiceImpl implements EventService {
     final UserRepository userRepository;
     final CategoryRepository categoryRepository;
     final EventRepository eventRepository;
@@ -289,30 +289,30 @@ public class EventServiceImpl implements EventService{
             return result;
         }
 
-            List<String> uris = events.stream()
-                    .map(event -> String.format("/events/%s", event.getId()))
-                    .collect(Collectors.toList());
-            Optional<LocalDateTime> start = events.stream()
-                    .map(Event::getCreatedOn)
-                    .min(LocalDateTime::compareTo);
-            List<ViewStats> response = staticClient.getStats(start.get(), LocalDateTime.now(), true, uris);
-            List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-            Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED).stream()
-                    .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
-            for (Event event : events) {
-                ObjectMapper mapper = new ObjectMapper();
-                List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
-                });
-                if (!statsDto.isEmpty()) {
-                    result.add(EventMapper.mapToEventFullDtoWithViews(event, statsDto.getFirst().getHits(),
-                            confirmedRequests.getOrDefault(event.getId(), 0L)));
-                } else {
-                    result.add(EventMapper.mapToEventFullDtoWithViews(event, 0L,
-                            confirmedRequests.getOrDefault(event.getId(), 0L)));
-                }
+        List<String> uris = events.stream()
+                .map(event -> String.format("/events/%s", event.getId()))
+                .collect(Collectors.toList());
+        Optional<LocalDateTime> start = events.stream()
+                .map(Event::getCreatedOn)
+                .min(LocalDateTime::compareTo);
+        List<ViewStats> response = staticClient.getStats(start.get(), LocalDateTime.now(), true, uris);
+        List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED).stream()
+                .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
+        for (Event event : events) {
+            ObjectMapper mapper = new ObjectMapper();
+            List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
+            });
+            if (!statsDto.isEmpty()) {
+                result.add(EventMapper.mapToEventFullDtoWithViews(event, statsDto.getFirst().getHits(),
+                        confirmedRequests.getOrDefault(event.getId(), 0L)));
+            } else {
+                result.add(EventMapper.mapToEventFullDtoWithViews(event, 0L,
+                        confirmedRequests.getOrDefault(event.getId(), 0L)));
             }
+        }
 
-            return result;
+        return result;
     }
 
     @Override
@@ -413,7 +413,7 @@ public class EventServiceImpl implements EventService{
 
 
         List<ViewStats> response = staticClient.getStats(event.getCreatedOn().minusSeconds(1), LocalDateTime.now(),
-                 true, List.of(request.getRequestURI()));
+                true, List.of(request.getRequestURI()));
 
         ObjectMapper mapper = new ObjectMapper();
         List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {

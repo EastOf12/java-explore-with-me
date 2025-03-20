@@ -7,12 +7,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.exeption.ForbiddenException;
+import ru.practicum.exeption.NotFoundException;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.mapper.UserMapper;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 import ru.practicum.user.request.NewUserRequest;
-import ru.practicum.exeption.NotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
