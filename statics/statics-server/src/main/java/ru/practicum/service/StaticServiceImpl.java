@@ -1,6 +1,5 @@
 package ru.practicum.service;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import ru.practicum.ViewStats;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.repository.StaticRepository;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class StaticServiceImpl implements StaticService {
             Boolean unique, List<String> uris) {
 
         if (start != null && end != null && start.isAfter(end)) {
-            throw new ValidationException("Не верный диапазон поиска");
+            throw new DateTimeException("Не верный диапазон поиска");
         }
 
         List<ViewStats> viewStats;
