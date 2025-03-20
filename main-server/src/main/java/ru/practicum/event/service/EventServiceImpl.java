@@ -412,7 +412,7 @@ public class EventServiceImpl implements EventService {
         staticClient.createEvent(newEventRequest);
 
 
-        List<ViewStats> response = staticClient.getStats(event.getCreatedOn().minusSeconds(1), LocalDateTime.now(),
+        List<ViewStats> response = staticClient.getStats(event.getCreatedOn().minusMinutes(1), LocalDateTime.now(),
                 true, List.of(request.getRequestURI()));
 
         ObjectMapper mapper = new ObjectMapper();
