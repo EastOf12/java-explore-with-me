@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.category.request.NewCategoryRequest;
-import ru.practicum.category.request.UpdateCategoryRequest;
+import ru.practicum.category.request.CategoryRequest;
 import ru.practicum.category.service.CategoryService;
 
 @RequiredArgsConstructor
@@ -17,13 +16,13 @@ public class CategoryControllerAdmin {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto create(@RequestBody @Valid NewCategoryRequest newCategoryRequest) {
-        return categoryService.create(newCategoryRequest);
+    public CategoryDto create(@RequestBody @Valid CategoryRequest categoryRequest) {
+        return categoryService.create(categoryRequest);
     } //Создать категорию
 
     @PatchMapping("/{catId}")
-    public CategoryDto update(@PathVariable Long catId, @Valid @RequestBody UpdateCategoryRequest updateCategoryRequest) {
-        return categoryService.update(catId, updateCategoryRequest);
+    public CategoryDto update(@PathVariable Long catId, @Valid @RequestBody CategoryRequest categoryRequest) {
+        return categoryService.update(catId, categoryRequest);
     } //Обновить категорию
 
     @DeleteMapping("/{catId}")

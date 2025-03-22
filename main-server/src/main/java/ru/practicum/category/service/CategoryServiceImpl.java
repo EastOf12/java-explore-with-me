@@ -9,8 +9,9 @@ import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-import ru.practicum.category.request.NewCategoryRequest;
-import ru.practicum.category.request.UpdateCategoryRequest;
+import ru.practicum.category.request.CategoryRequest;
+import ru.practicum.event.model.Event;
+import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exeption.ForbiddenException;
 import ru.practicum.exeption.NotFoundException;
 
@@ -23,38 +24,39 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional
-    public CategoryDto create(NewCategoryRequest newCategoryRequest) {
+    public CategoryDto create(CategoryRequest categoryRequest) {
         log.info("Создаем новую категорию");
 
-        if (!categoryRepository.findByNameContainingIgnoreCase(newCategoryRequest.getName()).isEmpty()) {
-            throw new ForbiddenException("Категория " + newCategoryRequest.getName() + " уже используется");
+        if (!categoryRepository.findByNameContainingIgnoreCase(categoryRequest.getName()).isEmpty()) {
+            throw new ForbiddenException("Категория " + categoryRequest.getName() + " уже используется");
         }
 
         return CategoryMapper.mapToCategoryDto(categoryRepository
-                .save(CategoryMapper.mapToCategory(newCategoryRequest)));
+                .save(CategoryMapper.mapToCategory(categoryRequest)));
     }
 
     @Override
     @Transactional
-    public CategoryDto update(Long id, UpdateCategoryRequest updateCategoryRequest) {
+    public CategoryDto update(Long id, CategoryRequest categoryRequest) {
         log.info("Обновляем категорию {}", id);
 
         //Проверяем, что нет других категорий с таким названием
-        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(updateCategoryRequest.getName());
+        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(categoryRequest.getName());
 
         for (Category category : categories) {
-            if (!category.getId().equals(id) && category.getName().equals(updateCategoryRequest.getName())) {
-                throw new ForbiddenException("Категория " + updateCategoryRequest.getName() +
+            if (!category.getId().equals(id) && category.getName().equals(categoryRequest.getName())) {
+                throw new ForbiddenException("Категория " + categoryRequest.getName() +
                         " уже используется категорией с id " + category.getId());
             }
         }
 
         //Обновляем название категории
         return CategoryMapper.mapToCategoryDto(categoryRepository
-                .save(CategoryMapper.mapToCategory(id, updateCategoryRequest)));
+                .save(CategoryMapper.mapToCategory(id, categoryRequest)));
     }
 
     @Override
@@ -64,6 +66,12 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Категория с id " + id + " не найдена"));
+
+        List<Event> events = eventRepository.findAllByCategoryId(id);
+
+        if(!events.isEmpty()) {
+            throw new ForbiddenException("The category is not empty");
+        }
 
         categoryRepository.delete(category);
     }
