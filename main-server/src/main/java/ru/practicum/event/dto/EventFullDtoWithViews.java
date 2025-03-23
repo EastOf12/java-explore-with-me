@@ -1,8 +1,10 @@
 package ru.practicum.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.event.model.State;
 import ru.practicum.locations.LocationDto;
@@ -15,40 +17,39 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventFullDtoWithViews {
-    Long id;
+    private Long id;
 
-    String annotation;
+    private String annotation;
 
-    CategoryDto category;
+    private CategoryDto category;
 
-    Long confirmedRequests;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime createdOn;
-
-    String description;
+    private Long confirmedRequests;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime eventDate;
+    private LocalDateTime createdOn;
 
-    UserShortDto initiator;
-
-    LocationDto location;
-
-    boolean paid;
-
-    Integer participantLimit;
+    private String description;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime publishedOn;
+    private LocalDateTime eventDate;
 
-    boolean requestModeration;
+    private UserShortDto initiator;
 
-    State state;
+    private LocationDto location;
 
-    String title;
+    private boolean paid;
 
-    Long views;
+    private Integer participantLimit;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime publishedOn;
+
+    private boolean requestModeration;
+
+    private State state;
+
+    private String title;
+
+    private Long views;
 }

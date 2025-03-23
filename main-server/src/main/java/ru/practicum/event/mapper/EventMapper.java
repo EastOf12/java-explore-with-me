@@ -2,14 +2,20 @@ package ru.practicum.event.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.category.mapper.CategoryMapper;
+import ru.practicum.category.model.Category;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventFullDtoWithViews;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.EventShortDtoWithViews;
 import ru.practicum.event.model.Event;
+import ru.practicum.event.model.State;
 import ru.practicum.event.request.NewEventRequest;
+import ru.practicum.locations.Location;
 import ru.practicum.locations.LocationMapper;
 import ru.practicum.user.mapper.UserMapper;
+import ru.practicum.user.model.User;
+
+import java.time.LocalDateTime;
 
 
 @UtilityClass
@@ -23,6 +29,23 @@ public class EventMapper {
                 .paid(newEventRequest.getPaid())
                 .participantLimit(newEventRequest.getParticipantLimit())
                 .requestModeration(newEventRequest.getRequestModeration())
+                .title(newEventRequest.getTitle())
+                .build();
+    }
+
+    public Event matToEvent(NewEventRequest newEventRequest, User user, Category category, Location location, State state) {
+        return Event.builder()
+                .annotation(newEventRequest.getAnnotation())
+                .category(category)
+                .createdOn(LocalDateTime.now())
+                .description(newEventRequest.getDescription())
+                .eventDate(newEventRequest.getEventDate())
+                .initiator(user)
+                .location(location)
+                .paid(newEventRequest.getPaid())
+                .participantLimit(newEventRequest.getParticipantLimit())
+                .requestModeration(newEventRequest.getRequestModeration())
+                .state(state)
                 .title(newEventRequest.getTitle())
                 .build();
     }

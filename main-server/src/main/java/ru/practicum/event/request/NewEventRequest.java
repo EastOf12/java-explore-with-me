@@ -3,11 +3,9 @@ package ru.practicum.event.request;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import ru.practicum.locations.LocationDto;
 
 import java.time.LocalDateTime;
@@ -15,39 +13,38 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewEventRequest {
 
     @Size(min = 20, max = 2000)
     @NotBlank
-    String annotation;
+    private String annotation;
 
     @NotNull
-    Long category;
+    private Long category;
 
     @Size(min = 20, max = 7000)
     @NotBlank
-    String description;
+    private String description;
 
     @NotNull
     @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
 
     @NotNull
     @Valid
-    LocationDto location;
+    private LocationDto location;
 
-    boolean paid = false;
+    private boolean paid = false;
 
     @PositiveOrZero
-    int participantLimit = 0;
+    private int participantLimit = 0;
 
-    boolean requestModeration = true;
+    private boolean requestModeration = true;
 
     @Size(min = 3, max = 120)
     @NotBlank
-    String title;
+    private String title;
 
     public Boolean getPaid() {
         return paid;

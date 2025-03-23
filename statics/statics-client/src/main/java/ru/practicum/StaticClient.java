@@ -17,6 +17,9 @@ public class StaticClient {
     @Value("${base.url}")
     private String baseUrl;
 
+    @Value("${app}")
+    String app;
+
     @Autowired
     public StaticClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;

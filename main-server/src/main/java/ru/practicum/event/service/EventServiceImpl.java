@@ -81,14 +81,9 @@ public class EventServiceImpl implements EventService {
         Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
                 new NotFoundException("Категория с id " + categoryId + " не найдена"));
 
-        Location location = checkLocation(LocationMapper.mapToLocation(newEventRequest.getLocation()));
+        Location location = getOrCreateLocation(LocationMapper.mapToLocation(newEventRequest.getLocation()));
 
-        Event event = EventMapper.matToEvent(newEventRequest);
-        event.setInitiator(user);
-        event.setCategory(category);
-        event.setLocation(location);
-        event.setCreatedOn(LocalDateTime.now());
-        event.setState(PENDING);
+        Event event = EventMapper.matToEvent(newEventRequest, user, category, location, PENDING);
 
         return EventMapper.mapToEventFullDto(eventRepository.save(event), 0L);
     }
@@ -129,7 +124,7 @@ public class EventServiceImpl implements EventService {
         }
 
         if (updateEvent.getLocation() != null) {
-            Location location = checkLocation(LocationMapper.mapToLocation(updateEvent.getLocation()));
+            Location location = getOrCreateLocation(LocationMapper.mapToLocation(updateEvent.getLocation()));
             event.setLocation(location);
         }
 
@@ -231,7 +226,7 @@ public class EventServiceImpl implements EventService {
             event.setEventDate(eventDate);
         }
         if (updateEvent.getLocation() != null) {
-            event.setLocation(checkLocation(LocationMapper.mapToLocation(updateEvent.getLocation())));
+            event.setLocation(getOrCreateLocation(LocationMapper.mapToLocation(updateEvent.getLocation())));
         }
         if (updateEvent.getPaid() != null) {
             event.setPaid(updateEvent.getPaid());
@@ -283,36 +278,11 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = eventRepository.findAll(specification, PageRequest.of(from / size, size)).getContent();
 
-        List<EventFullDtoWithViews> result = new ArrayList<>();
-
         if (events.isEmpty()) {
-            return result;
+            return new ArrayList<>();
         }
 
-        List<String> uris = events.stream()
-                .map(event -> String.format("/events/%s", event.getId()))
-                .collect(Collectors.toList());
-        Optional<LocalDateTime> start = events.stream()
-                .map(Event::getCreatedOn)
-                .min(LocalDateTime::compareTo);
-        List<ViewStats> response = staticClient.getStats(start.get(), LocalDateTime.now(), true, uris);
-        List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-        Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED).stream()
-                .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
-        for (Event event : events) {
-            ObjectMapper mapper = new ObjectMapper();
-            List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
-            });
-            if (!statsDto.isEmpty()) {
-                result.add(EventMapper.mapToEventFullDtoWithViews(event, statsDto.getFirst().getHits(),
-                        confirmedRequests.getOrDefault(event.getId(), 0L)));
-            } else {
-                result.add(EventMapper.mapToEventFullDtoWithViews(event, 0L,
-                        confirmedRequests.getOrDefault(event.getId(), 0L)));
-            }
-        }
-
-        return result;
+        return getFullEventsDetails(events);
     }
 
     @Override
@@ -360,50 +330,9 @@ public class EventServiceImpl implements EventService {
             default -> throw new ValidationException("Неправильный sort: " + sort);
         };
         List<Event> events = eventRepository.findAll(specification, pageRequest).getContent();
-        List<EventShortDtoWithViews> result = new ArrayList<>();
+
         if (events.isEmpty()) {
-            return result;
-        } else {
-            List<String> uris = events.stream()
-                    .map(event -> String.format("/events/%s", event.getId()))
-                    .collect(Collectors.toList());
-            Optional<LocalDateTime> start = events.stream()
-                    .map(Event::getCreatedOn)
-                    .min(LocalDateTime::compareTo);
-            List<ViewStats> response = staticClient.getStats(start.get(), LocalDateTime.now(), true, uris);
-            List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-            Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED)
-                    .stream()
-                    .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
-            for (Event event : events) {
-                ObjectMapper mapper = new ObjectMapper();
-                List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
-                });
-                if (!statsDto.isEmpty()) {
-                    result.add(EventMapper.mapToEventShortDtoWithViews(event, statsDto.getFirst().getHits(),
-                            confirmedRequests.getOrDefault(event.getId(), 0L)));
-                } else {
-                    result.add(EventMapper.mapToEventShortDtoWithViews(event, 0L,
-                            confirmedRequests.getOrDefault(event.getId(), 0L)));
-                }
-            }
-            NewEventRequest newEventRequest = new NewEventRequest(app, request.getRequestURI(), request.getRemoteAddr(),
-                    LocalDateTime.now());
-
-            staticClient.createEvent(newEventRequest);
-            return result;
-        }
-    }
-
-    @Override
-    public EventFullDtoWithViews getEventById(Long eventId, HttpServletRequest request) throws Exception {
-        log.info("Запрос на получение полной информации по событию");
-
-        Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                new NotFoundException("Событие с id " + eventId + " не найдено"));
-
-        if (event.getState() != PUBLISHED) {
-            throw new NotFoundException("Событие не опубликовано");
+            return new ArrayList<>();
         }
 
         NewEventRequest newEventRequest = new NewEventRequest(app, request.getRequestURI(), request.getRemoteAddr(),
@@ -411,6 +340,25 @@ public class EventServiceImpl implements EventService {
 
         staticClient.createEvent(newEventRequest);
 
+        return getShortEventsDetails(events);
+
+    }
+
+    @Override
+    public EventFullDtoWithViews getEventById(Long eventId, HttpServletRequest request) throws Exception {
+        log.info("Запрос на получение полной информации по событию");
+
+        NewEventRequest newEventRequest = new NewEventRequest(app, request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
+
+        staticClient.createEvent(newEventRequest);
+
+        Event event = eventRepository.findById(eventId).orElseThrow(() ->
+                new NotFoundException("Событие с id " + eventId + " не найдено"));
+
+        if (event.getState() != PUBLISHED) {
+            throw new NotFoundException("Событие не опубликовано");
+        }
 
         List<ViewStats> response = staticClient.getStats(event.getCreatedOn().minusSeconds(1), LocalDateTime.now(),
                 true, List.of(request.getRequestURI()));
@@ -437,7 +385,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private Location checkLocation(Location location) {
+    private Location getOrCreateLocation(Location location) {
         if (locationRepository.existsByLatAndLon(location.getLat(), location.getLon())) {
             return locationRepository.findByLatAndLon(location.getLat(), location.getLon());
         } else {
@@ -445,4 +393,62 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private List<EventShortDtoWithViews> getShortEventsDetails(List<Event> events) {
+        List<EventShortDtoWithViews> result = new ArrayList<>();
+
+        List<String> uris = events.stream()
+                .map(event -> String.format("/events/%s", event.getId()))
+                .collect(Collectors.toList());
+        Optional<LocalDateTime> start = events.stream()
+                .map(Event::getCreatedOn)
+                .min(LocalDateTime::compareTo);
+        List<ViewStats> response = staticClient.getStats(start.get(), LocalDateTime.now(), true, uris);
+        List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED)
+                .stream()
+                .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
+        for (Event event : events) {
+            ObjectMapper mapper = new ObjectMapper();
+            List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
+            });
+            if (!statsDto.isEmpty()) {
+                result.add(EventMapper.mapToEventShortDtoWithViews(event, statsDto.getFirst().getHits(),
+                        confirmedRequests.getOrDefault(event.getId(), 0L)));
+            } else {
+                result.add(EventMapper.mapToEventShortDtoWithViews(event, 0L,
+                        confirmedRequests.getOrDefault(event.getId(), 0L)));
+            }
+        }
+
+        return result;
+    }
+
+    private List<EventFullDtoWithViews> getFullEventsDetails(List<Event> events) {
+        List<EventFullDtoWithViews> result = new ArrayList<>();
+
+        List<String> uris = events.stream()
+                .map(event -> String.format("/events/%s", event.getId()))
+                .collect(Collectors.toList());
+        Optional<LocalDateTime> start = events.stream()
+                .map(Event::getCreatedOn)
+                .min(LocalDateTime::compareTo);
+        List<ViewStats> response = staticClient.getStats(start.get(), LocalDateTime.now(), true, uris);
+        List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED).stream()
+                .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
+        for (Event event : events) {
+            ObjectMapper mapper = new ObjectMapper();
+            List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
+            });
+            if (!statsDto.isEmpty()) {
+                result.add(EventMapper.mapToEventFullDtoWithViews(event, statsDto.getFirst().getHits(),
+                        confirmedRequests.getOrDefault(event.getId(), 0L)));
+            } else {
+                result.add(EventMapper.mapToEventFullDtoWithViews(event, 0L,
+                        confirmedRequests.getOrDefault(event.getId(), 0L)));
+            }
+        }
+
+        return result;
+    }
 }

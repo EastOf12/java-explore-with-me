@@ -84,7 +84,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ValidationException("Пользователь не инициатор");
         }
         long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, CONFIRMED);
-        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= confirmedRequests) {
+        if (event.getParticipantLimit() >= 0 && event.getParticipantLimit() <= confirmedRequests) {
             throw new ForbiddenException("Достигнуто максимальное количество участников");
         }
         List<RequestDto> confirmed = new ArrayList<>();
@@ -117,7 +117,26 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public RequestDto cancelRequest(Long userId, Long requestId) {
+
+        checkUser(userId);
+
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId);
+
+        if (request == null) {
+            throw new NotFoundException("Нет запроса с id " + requestId + " или пользователь с id " + userId + " не " +
+                    "является его инициатором");
+        }
+
+        Long eventId = request.getEvent().getId();
+
+        if (eventRepository.findById(eventId).isEmpty()) {
+            throw new NotFoundException("Событие с id " + eventId + " не найдено");
+        }
+
+        if (!request.getStatus().equals(PENDING)) {
+            throw new ForbiddenException("Запрос должен быть в PENDING");
+        }
+
         request.setStatus(RequestStatus.CANCELED);
 
         return RequestMapper.mapToRequestDto(requestRepository.save(request));

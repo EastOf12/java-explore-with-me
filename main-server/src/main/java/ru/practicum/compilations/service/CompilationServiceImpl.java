@@ -19,7 +19,6 @@ import ru.practicum.exeption.NotFoundException;
 import ru.practicum.request.dto.ConfirmedRequests;
 import ru.practicum.request.repository.RequestRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

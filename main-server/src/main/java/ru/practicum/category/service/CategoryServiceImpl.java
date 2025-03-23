@@ -69,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Event> events = eventRepository.findAllByCategoryId(id);
 
-        if(!events.isEmpty()) {
+        if (!events.isEmpty()) {
             throw new ForbiddenException("The category is not empty");
         }
 
