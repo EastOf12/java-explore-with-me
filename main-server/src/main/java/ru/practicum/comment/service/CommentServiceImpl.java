@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.event.model.State.PUBLISHED;
@@ -47,8 +48,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto addComment(Long userId, Long eventId, NewCommentRequest newCommentRequest) {
         log.info("Создаем новый комментарий");
+
         User author = checkAndGetUser(userId);
         Event event = checkAndGetEvent(eventId);
+
         if (event.getState() != PUBLISHED) {
             throw new ValidationException("Комментарий должен быть опубликован");
         }
@@ -56,6 +59,7 @@ public class CommentServiceImpl implements CommentService {
         UserShortDto userShort = UserMapper.toUserShortDto(author);
         EventShortDto eventShort = EventMapper.mapToEventShortDto(event,
                 requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
+
         return CommentMapper.mapToCommentDto(comment, userShort, eventShort);
     }
 
@@ -63,11 +67,12 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto updateComment(Long userId, Long eventId, Long commentId, NewCommentRequest newCommentRequest) {
         log.info("Обновляем комментарий");
-        User author = checkAndGetUser(userId);
+
         Event event = checkAndGetEvent(eventId);
 
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
-                new NotFoundException("Комментарий с id " + commentId + " не найден"));
+
+        Comment comment = commentRepository.findByIdAndAuthorId(commentId, userId).orElseThrow(() ->
+                new NotFoundException("Комментарий с id " + commentId + " не найден или принадлежит не " + userId));
 
         if (comment.getEvent() != event) {
             throw new ValidationException("Комментарий не относится к событию");
@@ -76,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setText(newCommentRequest.getText());
         comment.setEdited(LocalDateTime.now());
 
-        UserShortDto userShort = UserMapper.toUserShortDto(author);
+        UserShortDto userShort = UserMapper.toUserShortDto(comment.getAuthor());
         EventShortDto eventShort = EventMapper.mapToEventShortDto(event,
                 requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
 
@@ -135,11 +140,9 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void deleteComment(Long userId, Long commentId) {
         log.info("Удаляем свой комментарий");
-        User author = checkAndGetUser(userId);
-        Comment comment = checkAndGetComment(commentId);
 
-        if (comment.getAuthor() != author) {
-            throw new ValidationException("Удалить комментарий может только его автор");
+        if(commentRepository.findByIdAndAuthorId(commentId, userId).isEmpty()) {
+            throw  new NotFoundException("Комментарий с id " + commentId + " не найдено или его инициатор не " + userId);
         }
 
         commentRepository.deleteById(commentId);

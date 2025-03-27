@@ -16,6 +16,8 @@ import ru.practicum.StaticClient;
 import ru.practicum.ViewStats;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.comment.model.Comment;
+import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventFullDtoWithViews;
 import ru.practicum.event.dto.EventShortDto;
@@ -61,6 +63,7 @@ public class EventServiceImpl implements EventService {
     final EventRepository eventRepository;
     final LocationRepository locationRepository;
     final RequestRepository requestRepository;
+    final CommentRepository commentRepository;
     final StaticClient staticClient;
 
     @Value("${app}")
@@ -367,13 +370,15 @@ public class EventServiceImpl implements EventService {
         List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
         });
 
+        Long comments = (long) commentRepository.findAllByEventId(eventId).size();
+
         EventFullDtoWithViews result;
         if (!statsDto.isEmpty()) {
             result = EventMapper.mapToEventFullDtoWithViews(event, statsDto.getFirst().getHits(),
-                    requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
+                    requestRepository.countByEventIdAndStatus(eventId, CONFIRMED), comments);
         } else {
             result = EventMapper.mapToEventFullDtoWithViews(event, 0L,
-                    requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
+                    requestRepository.countByEventIdAndStatus(eventId, CONFIRMED), comments);
         }
 
         return result;
@@ -436,16 +441,45 @@ public class EventServiceImpl implements EventService {
         List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED).stream()
                 .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
+
+
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        List<Comment> comments = commentRepository.findAllByEventIdIn(eventIds);
+
+        Map<Long, List<Comment>> eventComments = new HashMap<>();
+
+        for (Comment comment: comments) {
+            Long eventId = comment.getEvent().getId();
+
+            if (eventComments.containsKey(eventId)) {
+                eventComments.get(eventId).add(comment);
+            } else {
+                eventComments.put(eventId, new ArrayList<>(List.of(comment)));
+            }
+        }
+
         for (Event event : events) {
             ObjectMapper mapper = new ObjectMapper();
             List<ViewStats> statsDto = mapper.convertValue(response, new TypeReference<>() {
             });
+
+            long commentsCount = 0L;
+
+            if(eventComments.containsKey(event.getId())) {
+                commentsCount = eventComments.get(event.getId()).size();
+            }
+
             if (!statsDto.isEmpty()) {
                 result.add(EventMapper.mapToEventFullDtoWithViews(event, statsDto.getFirst().getHits(),
-                        confirmedRequests.getOrDefault(event.getId(), 0L)));
+                        confirmedRequests.getOrDefault(event.getId(), 0L),
+                        commentsCount));
             } else {
                 result.add(EventMapper.mapToEventFullDtoWithViews(event, 0L,
-                        confirmedRequests.getOrDefault(event.getId(), 0L)));
+                        confirmedRequests.getOrDefault(event.getId(), 0L),
+                        commentsCount));
             }
         }
 
