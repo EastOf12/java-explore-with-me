@@ -468,7 +468,7 @@ public class EventServiceImpl implements EventService {
 
             long commentsCount = 0L;
 
-            if(eventComments.containsKey(event.getId())) {
+            if (eventComments.containsKey(event.getId())) {
                 commentsCount = eventComments.get(event.getId()).size();
             }
 

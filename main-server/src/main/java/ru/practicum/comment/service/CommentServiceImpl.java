@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.event.model.State.PUBLISHED;
@@ -141,7 +140,7 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Long userId, Long commentId) {
         log.info("Удаляем свой комментарий");
 
-        if(commentRepository.findByIdAndAuthorId(commentId, userId).isEmpty()) {
+        if (commentRepository.findByIdAndAuthorId(commentId, userId).isEmpty()) {
             throw  new NotFoundException("Комментарий с id " + commentId + " не найдено или его инициатор не " + userId);
         }
 
